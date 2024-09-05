@@ -8,6 +8,7 @@ import threading
 import hashlib
 from tqdm import tqdm
 from pathlib import Path
+from thefuzz import process
 from music_embedder import audio_embed
 
 class MusicPlayer:
@@ -69,6 +70,7 @@ class MusicPlayer:
             print("Music paused.")
 
     def play_current_track(self):
+        self.is_playing = True
         self.current_embedding = self.music_embeddings[self.current_track_index]
         pygame.mixer.music.load(self.playlist[self.current_track_index])
         pygame.mixer.music.play()
@@ -123,6 +125,18 @@ class MusicPlayer:
         self.recently_played.clear()
         print("Playlist shuffled.")
 
+    def fuzzy_search(self, query):
+        song_names = [Path(song).stem for song in self.playlist]
+        results = process.extract(query, song_names, limit=5)
+        return results
+    
+    def play_song_by_index(self, index):
+        if 0 <= index < len(self.playlist):
+            self.current_track_index = index
+            self.play_current_track()
+        else:
+            print("Invalid song index.")
+
     def check_music_end(self):
         for event in pygame.event.get():
             if event.type == pygame.USEREVENT:
@@ -142,6 +156,7 @@ def print_menu():
     print("m - Play next track (similar)")
     print("b - Play previous track")
     print("r - Shuffle playlist")
+    print("f - Fuzzy search for a song")
     print("q - Exit the player")
 
 def handle_user_input(player):
@@ -160,6 +175,16 @@ def handle_user_input(player):
             player.previous_track()
         elif command == "r":
             player.shuffle_playlist()
+        elif command == "f":
+            query = input("Enter search query: ")
+            results = player.fuzzy_search(query)
+            print("\nTop 5 matches:")
+            for i, (song, score) in enumerate(results):
+                print(f"{i+1}. {song} (Score: {score})")
+            choice = input("Enter the number of the song you want to play (or press Enter to cancel): ")
+            if choice.isdigit() and 1 <= int(choice) <= 5:
+                index = player.playlist.index(str(player.music_directory / f"{results[int(choice)-1][0]}.mp3"))
+                player.play_song_by_index(index)
         elif command == "q":
             print("Exiting Music Player.")
             player.should_exit = True

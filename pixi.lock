@@ -170,7 +170,9 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/43/e3/7d92a15f894aa0c9c4b49b8ee9ac9850d6e63b03c9c32c0367a13ae62209/mpmath-1.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/38/e9/5f72929373e1a0e8d142a130f3f97e6ff920070f87f91c4e13e40e0fba5a/networkx-3.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4c/0b/90b489ae7fc363020d6d18d3e4522b6021f4e0e84fbdd28c1d468c8a8e31/pygame-2.5.2-cp312-cp312-macosx_11_0_arm64.whl
+      - pypi: https://files.pythonhosted.org/packages/33/58/d67551479432be743b9e36eaf46e8ca6a76a8edfeb060137856576836129/rapidfuzz-3.9.7-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/c1/f9/6845bf8fca0eaf847da21c5d5bc6cd92797364662824a11d3f836423a1a5/sympy-1.13.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/82/4f/1695e70ceb3604f19eda9908e289c687ea81c4fecef4d90a9d1d0f2f7ae9/thefuzz-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ac/30/8b6f77ea4ce84f015ee024b8dfef0dac289396254e8bfd493906d4cbb848/torch-2.4.1-cp312-none-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/f7/63/ca0921398395834db67c52e2a0d0a4edec8077875c8ef825cb1ef81b86f7/torchaudio-2.4.1-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/a4/d0/b1029ab95d9219cac2dfc0d835e9ab4cebb01f5cb6b48e736778020fb995/torchvision-0.19.1-cp312-cp312-macosx_11_0_arm64.whl
@@ -2726,6 +2728,14 @@ packages:
   purls: []
   size: 516376
   timestamp: 1720814307311
+- kind: pypi
+  name: rapidfuzz
+  version: 3.9.7
+  url: https://files.pythonhosted.org/packages/33/58/d67551479432be743b9e36eaf46e8ca6a76a8edfeb060137856576836129/rapidfuzz-3.9.7-cp312-cp312-macosx_11_0_arm64.whl
+  sha256: 32532af1d70c6ec02ea5ac7ee2766dfff7c8ae8c761abfe8da9e527314e634e8
+  requires_dist:
+  - numpy ; extra == 'full'
+  requires_python: '>=3.8'
 - kind: conda
   name: readline
   version: '8.2'
@@ -2947,6 +2957,14 @@ packages:
   purls: []
   size: 115213
   timestamp: 1725532720037
+- kind: pypi
+  name: thefuzz
+  version: 0.22.1
+  url: https://files.pythonhosted.org/packages/82/4f/1695e70ceb3604f19eda9908e289c687ea81c4fecef4d90a9d1d0f2f7ae9/thefuzz-0.22.1-py3-none-any.whl
+  sha256: 59729b33556850b90e1093c4cf9e618af6f2e4c985df193fdf3c5b5cf02ca481
+  requires_dist:
+  - rapidfuzz<4.0.0,>=3.0.0
+  requires_python: '>=3.8'
 - kind: conda
   name: threadpoolctl
   version: 3.5.0
