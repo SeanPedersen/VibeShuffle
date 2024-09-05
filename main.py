@@ -84,6 +84,7 @@ class MusicPlayer:
     def next_track(self, similar=False):
         if similar:
             self.current_track_index = self.find_nearest_embedding()
+            self.current_embedding = self.music_embeddings[self.current_track_index]
         else:
             self.current_track_index = random.randint(0, len(self.playlist) - 1)
             # Reset recently played tracks on random shuffle
