@@ -1,11 +1,11 @@
 # VibeShuffle: smart music shuffle
 
-- embed all songs (mp3 files) into N vectors
-- play a random song
-- full play is positive signal
-- skip is negative signal
-- positive: play more similar songs
-- negative: play a random song
+- Embeds all songs (mp3 files) using neural net (results are cached)
+- Play a random song
+- Next similar: play more similar songs
+- Next shuffle: play a random song
+- Default: play similar songs
+- Hotkeys: play/pause media, F5: next shuffle, F6: next similar
 
 ## Setup
 
