@@ -9,6 +9,7 @@ import hashlib
 from tqdm import tqdm
 from pathlib import Path
 from thefuzz import process
+from pynput import keyboard
 from music_embedder import audio_embed
 
 class MusicPlayer:
@@ -191,6 +192,8 @@ def handle_user_input(player):
         else:
             print("Invalid command. Try again.")
 
+
+
 def main():
     parser = argparse.ArgumentParser(description="VibeShuffle Music Player")
     parser.add_argument("music_directory", type=str, help="Path to the directory containing music files (mp3)")
@@ -203,8 +206,21 @@ def main():
     input_thread = threading.Thread(target=handle_user_input, args=(player,))
     input_thread.start()
 
+    def on_press(key):
+        if key == keyboard.Key.f5:
+            player.next_track(similar=False)
+        elif key == keyboard.Key.f6:
+            player.next_track(similar=True)
+        elif key == keyboard.Key.media_play_pause:
+            player.toggle_play_pause()
+
+    listener = keyboard.Listener(on_press=on_press)
+    listener.start()
+
     player.run()
+
     input_thread.join()
+    listener.join()
 
 if __name__ == "__main__":
     main()
