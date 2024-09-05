@@ -1,6 +1,6 @@
 # VibeShuffle: smart music shuffle
 
-- embed all songs into N vectors
+- embed all songs (mp3 files) into N vectors
 - play a random song
 - full play is positive signal
 - skip is negative signal
@@ -13,7 +13,7 @@ Download [Pixi](https://pixi.sh/latest/#installation)
 
 - Install: ```$ pixi install```
 - Activate env: ```$ pixi shell```
-- Run: ```$ python main.py```
+- Run: ```$ python main.py path/to/your/music```
 
 ## References
 
