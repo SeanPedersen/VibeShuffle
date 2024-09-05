@@ -20,7 +20,8 @@ class MusicPlayer:
         self.current_embedding = None
         self.current_track_index = 0
         self.is_playing = False
-        self.recently_played = deque(maxlen=len(self.playlist) - 1)
+        self.history = deque(maxlen=len(self.playlist) - 1)
+        self.recently_played = deque(maxlen=len(self.playlist) - 1) # used to prevent duplicates for next nearest neighbors
         self.should_exit = False
         pygame.mixer.init()
         pygame.mixer.music.set_endevent(pygame.USEREVENT)
@@ -71,6 +72,7 @@ class MusicPlayer:
         self.current_embedding = self.music_embeddings[self.current_track_index]
         pygame.mixer.music.load(self.playlist[self.current_track_index])
         pygame.mixer.music.play()
+        self.history.append(self.current_track_index)
         self.recently_played.append(self.current_track_index)
         print(f"Playing: {Path(self.playlist[self.current_track_index]).name}")
 
@@ -100,9 +102,9 @@ class MusicPlayer:
         return np.argmin(distances)
 
     def previous_track(self):
-        if len(self.recently_played) > 1:
-            self.recently_played.pop()
-            self.current_track_index = self.recently_played.pop()
+        if len(self.history) > 1:
+            self.history.pop()
+            self.current_track_index = self.history.pop()
         else:
             self.current_track_index = (self.current_track_index - 1) % len(self.playlist)
         
