@@ -1,0 +1,20 @@
+[project]
+name = "vibe-shuffle"
+version = "0.1.0"
+description = "Add a short description here"
+authors = ["Sean Pedersen <sean.pedersen(AT)gmail.com>"]
+channels = ["conda-forge"]
+platforms = ["osx-arm64"]
+
+[tasks]
+
+[dependencies]
+python = ">=3.12.5,<3.13"
+librosa = ">=0.10.2.post1,<0.10.3"
+
+[pypi-dependencies]
+pygame = ">=2.5.2, <2.6"
+torch = ">=2.4.1, <2.5"
+torchaudio = ">=2.4.1, <2.5"
+torchvision = ">=0.19.1, <0.20"
+tqdm = ">=4.66.5, <4.67"
