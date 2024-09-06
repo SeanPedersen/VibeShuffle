@@ -1,7 +1,7 @@
 # VibeShuffle: smart music shuffle
 
 - Embeds all songs (mp3 files) using neural net (results are cached)
-- Play a random song
+- Play a random song or make a fuzzy search
 - Next similar: play more similar songs
 - Next shuffle: play a random song
 - Default: play similar songs
