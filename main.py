@@ -22,8 +22,8 @@ class MusicPlayer:
         self.current_embedding = None
         self.current_track_index = 0
         self.is_playing = False
-        self.history = deque(maxlen=len(self.playlist) - 1)
-        self.recently_played = deque(maxlen=len(self.playlist) - 1) # used to prevent duplicates for next nearest neighbors
+        self.history = deque(maxlen=len(self.playlist_paths) - 1)
+        self.recently_played = deque(maxlen=len(self.playlist_paths) - 1) # used to prevent duplicates for next nearest neighbors
         self.should_exit = False
         pygame.mixer.init()
         pygame.mixer.music.set_endevent(pygame.USEREVENT)
@@ -32,7 +32,7 @@ class MusicPlayer:
     def initialize_embeddings(self):
         self.cache_directory.mkdir(parents=True, exist_ok=True)
 
-        self.playlist = []
+        self.playlist_paths = []
         self.music_embeddings = []
 
         current_files = list(self.music_directory.rglob('*.mp3'))
@@ -51,11 +51,11 @@ class MusicPlayer:
                 embedding = audio_embed(str(file))
                 np.savez_compressed(cache_file, embedding=embedding, file_path=str(file))
 
-            self.playlist.append(str(file))
+            self.playlist_paths.append(file)
             self.music_embeddings.append(embedding)
 
         self.music_embeddings = np.array(self.music_embeddings)
-        print(f"Found and processed {len(self.playlist)} songs.")
+        print(f"Found and processed {len(self.playlist_paths)} songs.")
 
     def toggle_play_pause(self):
         if not self.is_playing:
@@ -73,11 +73,11 @@ class MusicPlayer:
     def play_current_track(self):
         self.is_playing = True
         self.current_embedding = self.music_embeddings[self.current_track_index]
-        pygame.mixer.music.load(self.playlist[self.current_track_index])
+        pygame.mixer.music.load(self.playlist_paths[self.current_track_index])
         pygame.mixer.music.play()
         self.history.append(self.current_track_index)
         self.recently_played.append(self.current_track_index)
-        print(f"Playing: {Path(self.playlist[self.current_track_index]).name}")
+        print(f"Playing: {Path(self.playlist_paths[self.current_track_index]).name}")
 
     def stop_music(self):
         pygame.mixer.music.stop()
@@ -89,14 +89,14 @@ class MusicPlayer:
             self.current_track_index = self.find_nearest_embedding()
             self.current_embedding = self.music_embeddings[self.current_track_index]
         else:
-            self.current_track_index = random.randint(0, len(self.playlist) - 1)
+            self.current_track_index = random.randint(0, len(self.playlist_paths) - 1)
             # Reset recently played tracks on random shuffle
             self.recently_played.clear()
         
         if self.is_playing:
             self.play_current_track()
         else:
-            print(f"Next track selected: {Path(self.playlist[self.current_track_index]).name}")
+            print(f"Next track selected: {self.playlist_paths[self.current_track_index].name}")
 
     def find_nearest_embedding(self):
         distances = np.linalg.norm(self.music_embeddings - self.current_embedding, axis=1)
@@ -110,29 +110,29 @@ class MusicPlayer:
             self.history.pop()
             self.current_track_index = self.history.pop()
         else:
-            self.current_track_index = (self.current_track_index - 1) % len(self.playlist)
+            self.current_track_index = (self.current_track_index - 1) % len(self.playlist_paths)
         
         if self.is_playing:
             self.play_current_track()
         else:
-            print(f"Previous track selected: {Path(self.playlist[self.current_track_index]).name}")
+            print(f"Previous track selected: {self.playlist_paths[self.current_track_index].name}")
 
     def shuffle_playlist(self):
-        combined = list(zip(self.playlist, self.music_embeddings))
+        combined = list(zip(self.playlist_paths, self.music_embeddings))
         random.shuffle(combined)
-        self.playlist, self.music_embeddings = zip(*combined)
-        self.playlist = list(self.playlist)
+        self.playlist_paths, self.music_embeddings = zip(*combined)
+        self.playlist_paths = list(self.playlist_paths)
         self.music_embeddings = np.array(self.music_embeddings)
         self.recently_played.clear()
         print("Playlist shuffled.")
 
     def fuzzy_search(self, query):
-        song_names = [Path(song).stem for song in self.playlist]
-        results = process.extract(query, song_names, limit=5)
+        song_names = [p.stem for p in self.playlist_paths]
+        results = process.extract(query, song_names, limit=10)
         return results
     
     def play_song_by_index(self, index):
-        if 0 <= index < len(self.playlist):
+        if 0 <= index < len(self.playlist_paths):
             self.current_track_index = index
             self.play_current_track()
         else:
@@ -183,8 +183,8 @@ def handle_user_input(player):
             for i, (song, score) in enumerate(results):
                 print(f"{i+1}. {song} (Score: {score})")
             choice = input("Enter the number of the song you want to play (or press Enter to cancel): ")
-            if choice.isdigit() and 1 <= int(choice) <= 5:
-                index = player.playlist.index(str(player.music_directory / f"{results[int(choice)-1][0]}.mp3"))
+            if choice.isdigit() and 1 <= int(choice) <= 10:
+                index = [p.name for p in player.playlist_paths].index(f"{results[int(choice)-1][0]}.mp3")
                 player.play_song_by_index(index)
         elif command == "q":
             print("Exiting Music Player.")
