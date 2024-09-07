@@ -35,7 +35,7 @@ class MusicPlayer:
         self.playlist = []
         self.music_embeddings = []
 
-        current_files = list(self.music_directory.glob('*.mp3'))
+        current_files = list(self.music_directory.rglob('*.mp3'))
 
         print("Initializing embeddings...")
         for file in tqdm(current_files, desc="Processing files", unit="file"):
