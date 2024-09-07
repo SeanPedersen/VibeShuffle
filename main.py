@@ -103,6 +103,12 @@ class MusicPlayer:
         # Prevent looping of similar songs
         for idx in self.recently_played:
             distances[idx] = np.inf
+        # Skip duplicate songs
+        for i, dist in enumerate(distances):
+            if dist < 0.2:
+                print("skipping duplicate:", self.playlist_paths[i].name, dist)
+                distances[i] = np.inf
+                self.recently_played.append(i)
         return np.argmin(distances)
 
     def previous_track(self):
