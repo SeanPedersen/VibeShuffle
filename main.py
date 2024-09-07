@@ -185,7 +185,7 @@ def handle_user_input(player):
         elif command == "f":
             query = input("Enter search query: ")
             results = player.fuzzy_search(query)
-            print("\nTop 5 matches:")
+            print("\nTop 10 matches:")
             for i, (song, score) in enumerate(results):
                 print(f"{i+1}. {song} (Score: {score})")
             choice = input("Enter the number of the song you want to play (or press Enter to cancel): ")
