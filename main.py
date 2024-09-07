@@ -219,8 +219,5 @@ def main():
 
     player.run()
 
-    input_thread.join()
-    listener.join()
-
 if __name__ == "__main__":
     main()
