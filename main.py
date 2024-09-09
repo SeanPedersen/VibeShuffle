@@ -21,6 +21,7 @@ class MusicPlayer:
         
         self.current_embedding = None
         self.current_track_index = 0
+        self.next_tracks_indices = []
         self.is_playing = False
         self.history = deque(maxlen=len(self.playlist_paths) - 1)
         self.recently_played = deque(maxlen=len(self.playlist_paths) - 1) # used to prevent duplicates for next nearest neighbors
@@ -78,38 +79,53 @@ class MusicPlayer:
         self.history.append(self.current_track_index)
         self.recently_played.append(self.current_track_index)
         print(f"Playing: {Path(self.playlist_paths[self.current_track_index]).name}")
-
-    def stop_music(self):
-        pygame.mixer.music.stop()
-        self.is_playing = False
-        print("Music stopped.")
+    
+    def like_song(self):
+        """ Sample new neighbors based on current song """
+        print("Liked song: sampling new nearest neighbors")
+        self.next_tracks_indices = self.find_nearest_embeddings()
 
     def next_track(self, similar=False):
         if similar:
-            self.current_track_index = self.find_nearest_embedding()
+            if len(self.next_tracks_indices) == 0:
+                # Fetch new similar tracks based on current track
+                self.next_tracks_indices = self.find_nearest_embeddings()
+            
+            # Skip duplicate songs
+            dist = np.linalg.norm(self.music_embeddings[self.current_track_index] - self.music_embeddings[self.next_tracks_indices[0]])
+            if dist < 0.2:
+                print("skipping duplicate:", self.playlist_paths[self.next_tracks_indices[0]].name, dist)
+                self.recently_played.append(self.next_tracks_indices[0])
+                self.next_tracks_indices = self.next_tracks_indices[1:]
+
+            # Select next track
+            self.current_track_index = self.next_tracks_indices[0]
+            self.next_tracks_indices = self.next_tracks_indices[1:]
             self.current_embedding = self.music_embeddings[self.current_track_index]
         else:
             self.current_track_index = random.randint(0, len(self.playlist_paths) - 1)
-            # Reset recently played tracks on random shuffle
+            # Reset recently played and next tracks on random shuffle
             self.recently_played.clear()
+            self.next_tracks_indices = []
         
         if self.is_playing:
             self.play_current_track()
         else:
             print(f"Next track selected: {self.playlist_paths[self.current_track_index].name}")
 
-    def find_nearest_embedding(self):
+    def find_nearest_embeddings(self, k=17):
         distances = np.linalg.norm(self.music_embeddings - self.current_embedding, axis=1)
+        
         # Prevent looping of similar songs
         for idx in self.recently_played:
             distances[idx] = np.inf
-        # Skip duplicate songs
-        for i, dist in enumerate(distances):
-            if dist < 0.2:
-                print("skipping duplicate:", self.playlist_paths[i].name, dist)
-                distances[i] = np.inf
-                self.recently_played.append(i)
-        return np.argmin(distances)
+        
+        # Get indices of k nearest neighbors
+        nearest_neighbors = np.argsort(distances)[:k]
+        print("new neighbors:")
+        for i in nearest_neighbors:
+            print(self.playlist_paths[i].name, distances[i])
+        return nearest_neighbors
 
     def previous_track(self):
         if len(self.history) > 1:
@@ -145,6 +161,7 @@ class MusicPlayer:
             print("Invalid song index.")
 
     def check_music_end(self):
+        """ Auto-play next song """
         for event in pygame.event.get():
             if event.type == pygame.USEREVENT:
                 self.next_track(similar=True)
@@ -158,10 +175,10 @@ class MusicPlayer:
 def print_menu():
     print("\nVibeShuffle Commands:")
     print("p - Play/Pause music")
-    print("s - Stop music")
     print("n - Play next track (random)")
     print("m - Play next track (similar)")
     print("b - Play previous track")
+    print("l - Like song (play more similar)")
     print("r - Shuffle playlist")
     print("f - Fuzzy search for a song")
     print("q - Exit the player")
@@ -172,8 +189,8 @@ def handle_user_input(player):
         command = input("Enter command: ").lower().strip()
         if command == "p":
             player.toggle_play_pause()
-        elif command == "s":
-            player.stop_music()
+        elif command == "l":
+            player.like_song()
         elif command == "n":
             player.next_track(similar=False)
         elif command == "m":
@@ -217,6 +234,8 @@ def main():
             player.next_track(similar=False)
         elif key == keyboard.Key.f6:
             player.next_track(similar=True)
+        elif key == keyboard.Key.f13:
+            player.like_song()
         elif key == keyboard.Key.media_play_pause:
             player.toggle_play_pause()
 
