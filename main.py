@@ -212,8 +212,6 @@ def handle_user_input(player):
         else:
             print("Invalid command. Try again.")
 
-
-
 def main():
     parser = argparse.ArgumentParser(description="VibeShuffle Music Player")
     parser.add_argument("music_directory", type=str, help="Path to the directory containing music files (mp3)")
