@@ -179,7 +179,6 @@ def print_menu():
     print("m - Play next track (similar)")
     print("b - Play previous track")
     print("l - Like song (play more similar)")
-    print("r - Shuffle playlist")
     print("f - Fuzzy search for a song")
     print("q - Exit the player")
 
@@ -197,8 +196,6 @@ def handle_user_input(player):
             player.next_track(similar=True)
         elif command == "b":
             player.previous_track()
-        elif command == "r":
-            player.shuffle_playlist()
         elif command == "f":
             query = input("Enter search query: ")
             results = player.fuzzy_search(query)
