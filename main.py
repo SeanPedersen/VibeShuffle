@@ -86,7 +86,7 @@ class MusicPlayer:
         self.next_tracks_indices = self.find_nearest_embeddings()
 
     def next_track(self, similar=False):
-        if similar:
+        if similar and self.current_track_index:
             if len(self.next_tracks_indices) == 0:
                 # Fetch new similar tracks based on current track
                 self.next_tracks_indices = self.find_nearest_embeddings()
