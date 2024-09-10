@@ -12,19 +12,22 @@ from thefuzz import process
 from pynput import keyboard
 from music_embedder import audio_embed
 
+
 class MusicPlayer:
     def __init__(self, music_directory):
         self.music_directory = Path(music_directory)
         self.cache_directory = Path(__file__).parent / "cache"
-        
+
         self.initialize_embeddings()
-        
+
         self.current_embedding = None
         self.current_track_index = 0
         self.next_tracks_indices = []
         self.is_playing = False
         self.history = deque(maxlen=len(self.playlist_paths) - 1)
-        self.recently_played = deque(maxlen=len(self.playlist_paths) - 1) # used to prevent duplicates for next nearest neighbors
+        self.recently_played = deque(
+            maxlen=len(self.playlist_paths) - 1
+        )  # used to prevent duplicates for next nearest neighbors
         self.should_exit = False
         pygame.mixer.init()
         pygame.mixer.music.set_endevent(pygame.USEREVENT)
@@ -36,7 +39,7 @@ class MusicPlayer:
         self.playlist_paths = []
         self.music_embeddings = []
 
-        current_files = list(self.music_directory.rglob('*.mp3'))
+        current_files = list(self.music_directory.rglob("*.mp3"))
 
         print("Initializing embeddings...")
         for file in tqdm(current_files, desc="Processing files", unit="file"):
@@ -46,11 +49,13 @@ class MusicPlayer:
             if cache_file.exists():
                 # Load from cache
                 with np.load(cache_file) as data:
-                    embedding = data['embedding']
+                    embedding = data["embedding"]
             else:
                 # Create new embedding
                 embedding = audio_embed(str(file))
-                np.savez_compressed(cache_file, embedding=embedding, file_path=str(file))
+                np.savez_compressed(
+                    cache_file, embedding=embedding, file_path=str(file)
+                )
 
             self.playlist_paths.append(file)
             self.music_embeddings.append(embedding)
@@ -79,9 +84,9 @@ class MusicPlayer:
         self.history.append(self.current_track_index)
         self.recently_played.append(self.current_track_index)
         print(f"Playing: {Path(self.playlist_paths[self.current_track_index]).name}")
-    
+
     def like_song(self):
-        """ Sample new neighbors based on current song """
+        """Sample new neighbors based on current song"""
         print("Liked song: sampling new nearest neighbors")
         self.next_tracks_indices = self.find_nearest_embeddings()
 
@@ -90,11 +95,18 @@ class MusicPlayer:
             if len(self.next_tracks_indices) == 0:
                 # Fetch new similar tracks based on current track
                 self.next_tracks_indices = self.find_nearest_embeddings()
-            
+
             # Skip duplicate songs
-            dist = np.linalg.norm(self.music_embeddings[self.current_track_index] - self.music_embeddings[self.next_tracks_indices[0]])
+            dist = np.linalg.norm(
+                self.music_embeddings[self.current_track_index]
+                - self.music_embeddings[self.next_tracks_indices[0]]
+            )
             if dist < 0.2:
-                print("skipping duplicate:", self.playlist_paths[self.next_tracks_indices[0]].name, dist)
+                print(
+                    "skipping duplicate:",
+                    self.playlist_paths[self.next_tracks_indices[0]].name,
+                    dist,
+                )
                 self.recently_played.append(self.next_tracks_indices[0])
                 self.next_tracks_indices = self.next_tracks_indices[1:]
 
@@ -107,19 +119,23 @@ class MusicPlayer:
             # Reset recently played and next tracks on random shuffle
             self.recently_played.clear()
             self.next_tracks_indices = []
-        
+
         if self.is_playing:
             self.play_current_track()
         else:
-            print(f"Next track selected: {self.playlist_paths[self.current_track_index].name}")
+            print(
+                f"Next track selected: {self.playlist_paths[self.current_track_index].name}"
+            )
 
     def find_nearest_embeddings(self, k=17):
-        distances = np.linalg.norm(self.music_embeddings - self.current_embedding, axis=1)
-        
+        distances = np.linalg.norm(
+            self.music_embeddings - self.current_embedding, axis=1
+        )
+
         # Prevent looping of similar songs
         for idx in self.recently_played:
             distances[idx] = np.inf
-        
+
         # Get indices of k nearest neighbors
         nearest_neighbors = np.argsort(distances)[:k]
         print("new neighbors:")
@@ -132,12 +148,16 @@ class MusicPlayer:
             self.history.pop()
             self.current_track_index = self.history.pop()
         else:
-            self.current_track_index = (self.current_track_index - 1) % len(self.playlist_paths)
-        
+            self.current_track_index = (self.current_track_index - 1) % len(
+                self.playlist_paths
+            )
+
         if self.is_playing:
             self.play_current_track()
         else:
-            print(f"Previous track selected: {self.playlist_paths[self.current_track_index].name}")
+            print(
+                f"Previous track selected: {self.playlist_paths[self.current_track_index].name}"
+            )
 
     def shuffle_playlist(self):
         combined = list(zip(self.playlist_paths, self.music_embeddings))
@@ -152,7 +172,7 @@ class MusicPlayer:
         song_names = [p.stem for p in self.playlist_paths]
         results = process.extract(query, song_names, limit=10)
         return results
-    
+
     def play_song_by_index(self, index):
         if 0 <= index < len(self.playlist_paths):
             self.current_track_index = index
@@ -161,7 +181,7 @@ class MusicPlayer:
             print("Invalid song index.")
 
     def check_music_end(self):
-        """ Auto-play next song """
+        """Auto-play next song"""
         for event in pygame.event.get():
             if event.type == pygame.USEREVENT:
                 self.next_track(similar=True)
@@ -172,6 +192,7 @@ class MusicPlayer:
                 self.check_music_end()
             time.sleep(0.1)
 
+
 def print_menu():
     print("\nVibeShuffle Commands:")
     print("p - Play/Pause music")
@@ -181,6 +202,7 @@ def print_menu():
     print("l - Like song (play more similar)")
     print("f - Fuzzy search for a song")
     print("q - Exit the player")
+
 
 def handle_user_input(player):
     print_menu()
@@ -202,9 +224,13 @@ def handle_user_input(player):
             print("\nTop 10 matches:")
             for i, (song, score) in enumerate(results):
                 print(f"{i+1}. {song} (Score: {score})")
-            choice = input("Enter the number of the song you want to play (or press Enter to cancel): ")
+            choice = input(
+                "Enter the number of the song you want to play (or press Enter to cancel): "
+            )
             if choice.isdigit() and 1 <= int(choice) <= 10:
-                index = [p.name for p in player.playlist_paths].index(f"{results[int(choice)-1][0]}.mp3")
+                index = [p.name for p in player.playlist_paths].index(
+                    f"{results[int(choice)-1][0]}.mp3"
+                )
                 player.play_song_by_index(index)
         elif command == "q":
             print("Exiting Music Player.")
@@ -212,9 +238,14 @@ def handle_user_input(player):
         else:
             print("Invalid command. Try again.")
 
+
 def main():
     parser = argparse.ArgumentParser(description="VibeShuffle Music Player")
-    parser.add_argument("music_directory", type=str, help="Path to the directory containing music files (mp3)")
+    parser.add_argument(
+        "music_directory",
+        type=str,
+        help="Path to the directory containing music files (mp3)",
+    )
     args = parser.parse_args()
 
     music_directory = args.music_directory
@@ -238,6 +269,7 @@ def main():
     listener.start()
 
     player.run()
+
 
 if __name__ == "__main__":
     main()
