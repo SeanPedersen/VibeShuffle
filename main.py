@@ -215,11 +215,11 @@ class MusicPlayer:
 
 def print_menu():
     print("\nVibeShuffle Commands:")
-    print("p - Play/Pause music")
-    print("n - Play next track (random)")
-    print("m - Play next track (similar)")
+    print("p - Play/Pause music Hotkey: Media play/pause")
+    print("n - Play next track (random) Hotkey: F5")
+    print("m - Play next track (similar) Hotkey: F6")
     print("b - Play previous track")
-    print("l - Like song (play more similar)")
+    print("l - Like song (play more similar) Hotkey: F13")
     print("f - Fuzzy search for a song")
     print("q - Exit the player")
 
