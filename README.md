@@ -5,7 +5,8 @@
 - Next similar: play more similar songs
 - Next shuffle: play a random song
 - Default: play similar songs
-- Hotkeys: play/pause media, F5: next shuffle, F6: next similar
+- Like song: play more similar songs (sample new nearest neighbors)
+- Hotkeys: play/pause media, F5: next shuffle, F6: next similar, F13: like song
 
 ## Setup
 
