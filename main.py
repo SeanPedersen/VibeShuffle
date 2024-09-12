@@ -34,7 +34,6 @@ class MusicPlayer:
         pygame.init()
 
     def initialize_embeddings(self):
-        """Loads cached embeddings based on file name and size"""
         self.cache_directory.mkdir(parents=True, exist_ok=True)
         self.playlist_paths = []
         self.music_embeddings = []
@@ -42,21 +41,36 @@ class MusicPlayer:
         current_files = list(self.music_directory.rglob("*.mp3"))
         print("Initializing embeddings...")
 
-        for file in tqdm(current_files, desc="Processing files", unit="file"):
+        # Step 1: Load existing files from cache
+        cached_files = []
+        new_files = []
+        for file in current_files:
+            file_name = file.name
+            file_size = os.path.getsize(file)
+            cache_file = self.cache_directory / f"{file_name}_{file_size}.npz"
+            if cache_file.exists():
+                cached_files.append((file, cache_file))
+            else:
+                new_files.append(file)
+
+        print(f"Loading {len(cached_files)} cached files...")
+        for file, cache_file in tqdm(
+            cached_files, desc="Loading cached files", unit="file"
+        ):
+            with np.load(cache_file) as data:
+                embedding = data["embedding"]
+            self.playlist_paths.append(file)
+            self.music_embeddings.append(embedding)
+
+        # Step 2: Embed and cache new files
+        print(f"Processing {len(new_files)} new files...")
+        for file in tqdm(new_files, desc="Processing new files", unit="file"):
             file_name = file.name
             file_size = os.path.getsize(file)
             cache_file = self.cache_directory / f"{file_name}_{file_size}.npz"
 
-            if cache_file.exists():
-                # Load from cache
-                with np.load(cache_file) as data:
-                    embedding = data["embedding"]
-            else:
-                # Create new embedding
-                embedding = audio_embed(str(file))
-                np.savez_compressed(
-                    cache_file, embedding=embedding, file_path=str(file)
-                )
+            embedding = audio_embed(str(file))
+            np.savez_compressed(cache_file, embedding=embedding, file_path=str(file))
 
             self.playlist_paths.append(file)
             self.music_embeddings.append(embedding)
