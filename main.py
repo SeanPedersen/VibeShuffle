@@ -5,7 +5,7 @@ import numpy as np
 import time
 from collections import deque
 import threading
-import hashlib
+import os
 from tqdm import tqdm
 from pathlib import Path
 from thefuzz import process
@@ -34,17 +34,18 @@ class MusicPlayer:
         pygame.init()
 
     def initialize_embeddings(self):
+        """Loads cached embeddings based on file name and size"""
         self.cache_directory.mkdir(parents=True, exist_ok=True)
-
         self.playlist_paths = []
         self.music_embeddings = []
 
         current_files = list(self.music_directory.rglob("*.mp3"))
-
         print("Initializing embeddings...")
+
         for file in tqdm(current_files, desc="Processing files", unit="file"):
-            file_hash = hashlib.md5(file.read_bytes()).hexdigest()
-            cache_file = self.cache_directory / f"{file_hash}.npz"
+            file_name = file.name
+            file_size = os.path.getsize(file)
+            cache_file = self.cache_directory / f"{file_name}_{file_size}.npz"
 
             if cache_file.exists():
                 # Load from cache
