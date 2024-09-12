@@ -10,7 +10,6 @@ from tqdm import tqdm
 from pathlib import Path
 from thefuzz import process
 from pynput import keyboard
-from music_embedder import audio_embed
 
 
 class MusicPlayer:
@@ -64,16 +63,22 @@ class MusicPlayer:
 
         # Step 2: Embed and cache new files
         print(f"Processing {len(new_files)} new files...")
-        for file in tqdm(new_files, desc="Processing new files", unit="file"):
-            file_name = file.name
-            file_size = os.path.getsize(file)
-            cache_file = self.cache_directory / f"{file_name}_{file_size}.npz"
+        if len(new_files) > 0:
+            # Only load embedding model if new files exist
+            from music_embedder import audio_embed
 
-            embedding = audio_embed(str(file))
-            np.savez_compressed(cache_file, embedding=embedding, file_path=str(file))
+            for file in tqdm(new_files, desc="Processing new files", unit="file"):
+                file_name = file.name
+                file_size = os.path.getsize(file)
+                cache_file = self.cache_directory / f"{file_name}_{file_size}.npz"
 
-            self.playlist_paths.append(file)
-            self.music_embeddings.append(embedding)
+                embedding = audio_embed(str(file))
+                np.savez_compressed(
+                    cache_file, embedding=embedding, file_path=str(file)
+                )
+
+                self.playlist_paths.append(file)
+                self.music_embeddings.append(embedding)
 
         self.music_embeddings = np.array(self.music_embeddings)
         print(f"Found and processed {len(self.playlist_paths)} songs.")
