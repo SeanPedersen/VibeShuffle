@@ -136,6 +136,7 @@ class MusicPlayer:
             self.current_embedding = self.music_embeddings[self.current_track_index]
         else:
             self.current_track_index = random.randint(0, len(self.playlist_paths) - 1)
+            self.current_embedding = self.music_embeddings[self.current_track_index]
             # Reset recently played and next tracks on random shuffle
             self.recently_played.clear()
             self.next_tracks_indices = []
