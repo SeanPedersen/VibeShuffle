@@ -111,7 +111,7 @@ class MusicPlayer:
         self.next_tracks_indices = self.find_nearest_embeddings()
 
     def next_track(self, similar=False):
-        if similar and self.current_track_index:
+        if similar:
             if len(self.next_tracks_indices) == 0:
                 # Fetch new similar tracks based on current track
                 self.next_tracks_indices = self.find_nearest_embeddings()
@@ -197,6 +197,7 @@ class MusicPlayer:
     def play_song_by_index(self, index):
         if 0 <= index < len(self.playlist_paths):
             self.current_track_index = index
+            self.next_tracks_indices = []  # Reset next tracks
             self.play_current_track()
         else:
             print("Invalid song index.")
