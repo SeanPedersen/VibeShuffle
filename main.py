@@ -121,7 +121,8 @@ class MusicPlayer:
                 self.music_embeddings[self.current_track_index]
                 - self.music_embeddings[self.next_tracks_indices[0]]
             )
-            if dist < 0.2:
+            # Magic number to skip (nearly exact) duplicates
+            if dist < 0.26:
                 print(
                     "skipping duplicate:",
                     self.playlist_paths[self.next_tracks_indices[0]].name,
