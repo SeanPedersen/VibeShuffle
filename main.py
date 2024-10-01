@@ -22,6 +22,7 @@ class MusicPlayer:
         self.current_embedding = None
         self.current_track_index = 0
         self.next_tracks_indices = []
+        self.current_volume = 0.8  # Set default volume
         self.is_playing = False
         self.history = deque(maxlen=len(self.playlist_paths) - 1)
         self.recently_played = deque(
@@ -29,7 +30,7 @@ class MusicPlayer:
         )  # used to prevent duplicates for next nearest neighbors
         self.should_exit = False
         pygame.mixer.init()
-        pygame.mixer.music.set_volume(1.0)  # Set default volume to 1.0
+        pygame.mixer.music.set_volume(self.current_volume)
         pygame.mixer.music.set_endevent(pygame.USEREVENT)
         pygame.init()
 
@@ -37,6 +38,7 @@ class MusicPlayer:
         try:
             new_volume = float(input("Enter new volume (0.0 to 1.0): "))
             if 0.0 <= new_volume <= 1.0:
+                self.current_volume = new_volume
                 pygame.mixer.music.set_volume(new_volume)
                 print(f"Volume set to {new_volume}")
             else:
@@ -269,6 +271,7 @@ def handle_user_input(player):
                 )
                 player.play_song_by_index(index)
         elif command == "c":
+            print("Current volume:", player.current_volume)
             player.change_volume()
         elif command == "q":
             print("Exiting Music Player.")
