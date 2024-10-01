@@ -29,8 +29,20 @@ class MusicPlayer:
         )  # used to prevent duplicates for next nearest neighbors
         self.should_exit = False
         pygame.mixer.init()
+        pygame.mixer.music.set_volume(1.0)  # Set default volume to 1.0
         pygame.mixer.music.set_endevent(pygame.USEREVENT)
         pygame.init()
+
+    def change_volume(self):
+        try:
+            new_volume = float(input("Enter new volume (0.0 to 1.0): "))
+            if 0.0 <= new_volume <= 1.0:
+                pygame.mixer.music.set_volume(new_volume)
+                print(f"Volume set to {new_volume}")
+            else:
+                print("Invalid volume. Please enter a value between 0.0 and 1.0")
+        except ValueError:
+            print("Invalid input. Please enter a number between 0.0 and 1.0")
 
     def initialize_embeddings(self):
         self.cache_directory.mkdir(parents=True, exist_ok=True)
@@ -224,6 +236,7 @@ def print_menu():
     print("b - Play previous track")
     print("l - Like song (play more similar) Hotkey: F13")
     print("f - Fuzzy search for a song")
+    print("c - Change volume")
     print("q - Exit the player")
 
 
@@ -255,6 +268,8 @@ def handle_user_input(player):
                     f"{results[int(choice)-1][0]}.mp3"
                 )
                 player.play_song_by_index(index)
+        elif command == "c":
+            player.change_volume()
         elif command == "q":
             print("Exiting Music Player.")
             player.should_exit = True
