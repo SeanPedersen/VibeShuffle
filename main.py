@@ -1,13 +1,15 @@
 import argparse
 import random
-import pygame
-import numpy as np
 import time
+from pathlib import Path
 from collections import deque
 import threading
 import os
+
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
+import pygame
+import numpy as np
 from tqdm import tqdm
-from pathlib import Path
 from thefuzz import process
 from pynput import keyboard
 
