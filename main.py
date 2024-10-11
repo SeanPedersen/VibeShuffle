@@ -81,7 +81,8 @@ class MusicPlayer:
         print(f"Processing {len(new_files)} new files...")
         if len(new_files) > 0:
             # Only load embedding model if new files exist
-            from music_embedder_mert import audio_embed
+            from music_embedder import audio_embed
+            # from music_embedder_mert import audio_embed
 
             for file in tqdm(new_files, desc="Processing new files", unit="file"):
                 file_name = file.name
