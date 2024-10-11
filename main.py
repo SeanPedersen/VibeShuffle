@@ -124,8 +124,11 @@ class MusicPlayer:
 
     def like_song(self):
         """Sample new neighbors based on current song"""
-        print("Liked song: sampling new nearest neighbors")
-        self.next_tracks_indices = self.find_nearest_embeddings()
+        if self.current_embedding is not None:
+            print("Liked song: sampling new nearest neighbors")
+            self.next_tracks_indices = self.find_nearest_embeddings()
+        else:
+            print("Choose a song first...")
 
     def next_track(self, similar=False):
         if similar and self.current_embedding is not None:
