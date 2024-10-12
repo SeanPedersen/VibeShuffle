@@ -10,11 +10,12 @@
 
 ## Setup
 
-Download [Pixi](https://pixi.sh/latest/#installation)
+Download and install [Pixi](https://pixi.sh/latest/#installation)
 
-- Install: ```$ pixi install```
-- Activate env: ```$ pixi shell```
-- Run: ```$ python main.py path/to/your/music```
+- Change dir to vibe-shuffle: ```$ cd vibe-shuffle/```
+- Install dependencies: ```$ pixi install```
+- Activate environment: ```$ pixi shell```
+- Run app: ```$ python main.py path/to/your/music```
 
 ## References
 
