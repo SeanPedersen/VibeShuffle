@@ -11,7 +11,6 @@ from helpers.utils import NAME_TO_WIDTH
 
 model_name = "dymn10_as"
 print("Model:", model_name)
-device_ = "cpu"
 strides = [2, 2, 2, 2]
 n_mels = 128
 sample_rate = 32000
@@ -32,11 +31,7 @@ else:
         strides=strides,
     )
 
-device = (
-    torch.device("cuda")
-    if device_ == "cuda" and torch.cuda.is_available()
-    else torch.device("cpu")
-)
+device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 model.to(device)
 model.eval()
@@ -61,7 +56,7 @@ def audio_embed(audio_path, head_type="mlp"):
     # running on cpu with torch.float32 gives similar performance, using torch.bfloat16 is worse
     with torch.no_grad(), autocast(
         device_type=device.type
-    ) if device_ == "cuda" else nullcontext():
+    ) if device.type == "cuda" else nullcontext():
         spec = mel(waveform)
         _preds, features = model(spec.unsqueeze(0))
 
