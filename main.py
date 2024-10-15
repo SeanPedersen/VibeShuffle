@@ -10,7 +10,7 @@ os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 import pygame
 import numpy as np
 from tqdm import tqdm
-from thefuzz import process
+from rapidfuzz import process, fuzz
 from pynput import keyboard
 
 
@@ -210,9 +210,19 @@ class MusicPlayer:
         self.recently_played.clear()
         print("Playlist shuffled.")
 
+    @staticmethod
+    def custom_scorer(query, choice, score_cutoff=0):
+        if query.lower() in choice.lower():
+            return 100  # Exact substring match
+        else:
+            return fuzz.WRatio(query, choice)  # Fuzzy match
+
     def fuzzy_search(self, query):
         song_names = [p.stem for p in self.playlist_paths]
-        results = process.extract(query, song_names, limit=10)
+        results = process.extract(
+            query, song_names, scorer=self.custom_scorer, limit=10
+        )
+        results = [(r, s) for r, s, _i in results]
         return results
 
     def play_song_by_index(self, index):
