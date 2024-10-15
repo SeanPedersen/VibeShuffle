@@ -254,7 +254,7 @@ def print_menu():
     print("m - Play next track (similar) Hotkey: F6")
     print("b - Play previous track")
     print("l - Like song (play more similar) Hotkey: F13")
-    print("f - Fuzzy search for a song")
+    print("f - Fuzzy search for a song by name")
     print("c - Change volume")
     print("q - Exit the player")
 
