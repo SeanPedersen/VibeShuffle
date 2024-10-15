@@ -229,6 +229,7 @@ class MusicPlayer:
         if 0 <= index < len(self.playlist_paths):
             self.current_track_index = index
             self.next_tracks_indices = []  # Reset next tracks
+            self.recently_played.clear()  # Reset previous tracks queue
             self.play_current_track()
         else:
             print("Invalid song index.")
